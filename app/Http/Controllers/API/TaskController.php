@@ -17,9 +17,12 @@ class TaskController extends Controller
 
     public function index()
     {
-        $tasks = Task::all();
+        $tasks = Auth::user()->tasks;
+
+        $this->authorize('viewAny', Task::class);
+
         return response()->json([
-            'message' => 'Task List',
+            'message' => 'Liste des tâches de l\'utilisateur',
             'tasks' => $tasks
         ], 200);
     }
@@ -48,6 +51,8 @@ class TaskController extends Controller
     public function show($id)
     {
         $task = Task::find($id);
+        
+        $this->authorize('view', $task);
         return response()->json([
             'message' => 'Task Detail',
             'task' => $task
@@ -65,6 +70,7 @@ class TaskController extends Controller
 
     public function update(UpdateTaskRequest $request, Task $task)
     {
+        $this->authorize('update', $task);
         $request->validated();
 
         $task->update([
@@ -81,6 +87,7 @@ class TaskController extends Controller
 
     public function destroy(Task $task)
     {
+        $this->authorize('delete', $task);
         $task->delete();
         return response()->json([
             'message' => 'Task Deleted'
